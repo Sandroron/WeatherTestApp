@@ -65,7 +65,7 @@ class CityWeatherViewController: UIViewController,
         
         resultTableView.allowsSelection = false
         
-        resultTableView.register(UITableViewCell.self, forCellReuseIdentifier: "UITableViewCell")
+        resultTableView.register(CityWeatherTableViewCell.self, forCellReuseIdentifier: "CityWeatherTableViewCell")
         
         resultTableView.refreshControl = UIRefreshControl()
         resultTableView.refreshControl?.addTarget(self, action: #selector(handleRefreshControl), for: .valueChanged)
@@ -158,27 +158,18 @@ class CityWeatherViewController: UIViewController,
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
-        
-        // TODO: в отдельный класс
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        numberFormatter.positivePrefix = "+"
-
-        let temp: String
-        let main: String
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CityWeatherTableViewCell", for: indexPath)
+                as? CityWeatherTableViewCell else { fatalError("Cell is not CityWeatherTableViewCell") }
         
         if indexPath.section == currentWeatherSection {
             
-            temp = numberFormatter.string(for: cityWeather?.current?.temp ?? 0) ?? ""
-            main = cityWeather?.current?.main ?? ""
+            cell.setup(temp: cityWeather?.current?.temp ?? 0,
+                       main: cityWeather?.current?.main ?? "")
         } else {
             
-            temp = numberFormatter.string(for: cityWeather?.daily[indexPath.row].temp ?? 0) ?? ""
-            main = cityWeather?.daily[indexPath.row].main ?? ""
+            cell.setup(temp: cityWeather?.daily[indexPath.row].temp ?? 0,
+                       main: cityWeather?.daily[indexPath.row].main ?? "")
         }
-        
-        cell.textLabel?.text = "\(temp), \(main)"
         
         return cell
     }
