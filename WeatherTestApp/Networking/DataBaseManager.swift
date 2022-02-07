@@ -18,9 +18,19 @@ class DataBaseManagerImplementation: DataBaseManager {
     
     func save(cityWeather: CityWeatherModel) {
         
-        try! mainRealm.write {
+        if let oldCityWeather = mainRealm.object(ofType: CityWeatherModel.self, forPrimaryKey: cityWeather.name) {
             
-            mainRealm.add(cityWeather)
+            try! mainRealm.write {
+                
+                oldCityWeather.current = cityWeather.current
+                oldCityWeather.daily = cityWeather.daily
+            }
+        } else {
+            
+            try! mainRealm.write {
+                
+                mainRealm.add(cityWeather)
+            }
         }
     }
     
