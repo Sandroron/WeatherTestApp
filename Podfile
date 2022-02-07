@@ -6,7 +6,7 @@ target 'WeatherTestApp' do
   use_frameworks!
 
   # Pods for WeatherTestApp
-  pod 'AlamofireObjectMapper'
+  pod 'AlamofireObjectMapper', '~> 5.2'
   pod 'RealmSwift'
 
   target 'WeatherTestAppTests' do
