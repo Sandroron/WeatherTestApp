@@ -11,7 +11,7 @@ import UIKit
 
 class CityWeatherViewController: UIViewController,
     UITableViewDelegate, UITableViewDataSource,
-    DataProviderDelegate {
+    LocalDataProviderDelegate {
 
     // MARK: - Constants
     
@@ -33,8 +33,9 @@ class CityWeatherViewController: UIViewController,
     
     // MARK: - Properties
     
-    var city: City?
-    var dataProvider = CityWeatherDataProvider()
+    var city: City!
+    var cityWeather: CityWeatherModel?
+    var dataProvider = CityWeatherLocalDataProvider()
     
     
     // MARK: - Configuration
@@ -147,7 +148,7 @@ class CityWeatherViewController: UIViewController,
                return 1
            } else {
                
-               return dataProvider.object?.daily?.count ?? 0
+               return cityWeather?.daily.count ?? 0
            }
         default:
            
@@ -169,12 +170,12 @@ class CityWeatherViewController: UIViewController,
         
         if indexPath.section == currentWeatherSection {
             
-            temp = numberFormatter.string(for: round(dataProvider.object?.current?.temp ?? 0)) ?? ""
-            main = dataProvider.object?.current?.weather?.first?.main ?? ""
+            temp = numberFormatter.string(for: cityWeather?.current?.temp ?? 0) ?? ""
+            main = cityWeather?.current?.main ?? ""
         } else {
             
-            temp = numberFormatter.string(for: round(dataProvider.object?.daily?[indexPath.row].temp?.average ?? 0)) ?? ""
-            main = dataProvider.object?.daily?[indexPath.row].weather?.first?.main ?? ""
+            temp = numberFormatter.string(for: cityWeather?.daily[indexPath.row].temp ?? 0) ?? ""
+            main = cityWeather?.daily[indexPath.row].main ?? ""
         }
         
         cell.textLabel?.text = "\(temp), \(main)"
@@ -183,13 +184,16 @@ class CityWeatherViewController: UIViewController,
     }
     
     
-    // MARK: - DataProviderDelegate
+    // MARK: - LocalDataProviderDelegate
     
-    func willShowResponseSuccess(_ dataProvider: DataProvider) {
+    func willShowResponseSuccess(_ dataProvider: LocalDataProvider) {
+        
+        cityWeather = self.dataProvider.obtainCityWeather(in: city)
         
         resultTableView.refreshControl?.endRefreshing()
         resultTableView.reloadData()
         
+        // TODO: Вынести во ViewProvider
         resultTableView.isHidden = false
         loadingView.isHidden = true
         errorView.isHidden = true
@@ -197,7 +201,7 @@ class CityWeatherViewController: UIViewController,
         activityIndicatorView.stopAnimating()
     }
 
-    func willShowResponseLoading(_ dataProvider: DataProvider) {
+    func willShowResponseLoading(_ dataProvider: LocalDataProvider) {
         
         resultTableView.isHidden = true
         loadingView.isHidden = false
@@ -206,7 +210,7 @@ class CityWeatherViewController: UIViewController,
         activityIndicatorView.startAnimating()
     }
 
-    func willShowResponseError(_ dataProvider: DataProvider) {
+    func willShowResponseError(_ dataProvider: LocalDataProvider) {
         
         resultTableView.isHidden = true
         loadingView.isHidden = true

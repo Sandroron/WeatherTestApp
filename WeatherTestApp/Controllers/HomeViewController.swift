@@ -176,6 +176,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
+        resultTableView.reloadData()
         updateLocationIfNeeded(in: manager, for: currentLocationData.location)
     }
     
